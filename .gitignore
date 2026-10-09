@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+qalxan.db
+node_modules/
+
+# local tooling
+.claude/
+.playwright-mcp/
+
+# Office lock files and old deck drafts
+~$*
+Qalxan_pitch_*_v*.pdf
+Qalxan_pitch_*_v*.pptx

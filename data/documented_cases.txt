@@ -1,0 +1,81 @@
+# Independent test set: scams reconstructed from OFFICIAL warnings about real campaigns in Azerbaijan.
+# Not verbatim (agencies do not publish full texts); written after the model was trained, in wording
+# different from the training templates. Several schemes are absent from training altogether.
+# Sources:
+#  - Electronic Security Service (mincom.gov.az): fake Azerpost customs fee 10.2 AZN; fake "Receive payment"
+#    pages for online sellers (Sept 2025); fake IBA gift campaign
+#  - Ministry of Internal Affairs: fake "bank specialist" asking card number, CVV, OTP; video calls
+#  - Kapital Bank: callers asking 16-digit card number, CVV, OTP, FIN; links that take over the phone
+#  - Azercell (report.az, 12.02.2024): fake sale of numbers asking ID documents and prepayment
+#  - Trend.az (2018): Azerpoct "win an iPhone X" + tax fee
+# Lines starting with OK| are genuine-looking messages (hard negatives).
+Azerpost: Hörmətli müştəri, bağlamanız üçün 10.2 AZN gömrük rüsumu ödənilməyib. Ödəniş üçün: azerpost-gomruk.com/pay
+AZERPOST bildiriş: sizin göndərişiniz gözləmədədir. Status: ödəniş gözləyir. Ətraflı azerpost.delivery-az.info
+Azerpost: Baglama teslim edilmesi ucun gomruk rusumu 10,20 AZN odenmelidir. Link: azpost-az.top/odenis
+Azerpost: Уважаемый клиент, за вашу посылку не оплачена таможенная пошлина 10.2 AZN. Оплатите по ссылке azerpost-tracking.net
+Azerpost: Your package is on hold. Customs duty 10.20 AZN unpaid. Pay here to release: azerpost-release.com
+Salam, elanınızdakı məhsulu alıram. Ödənişi Azerpost vasitəsilə etdim, pulu götürmək üçün bu linkə daxil olub "Ödənişi al" düyməsini basın: azerpost-pay.site/receive
+Здравствуйте, товар забираю. Доставку оформил через Azerpost, оплата уже прошла. Нажмите «Получить оплату» и введите карту: azerpost-payment.online
+Hi! I bought your item, payment is done through Azerpost delivery. Click Receive payment and confirm your card (expiry and CVV) here: azerpost-safe.store
+Çatdırılma təsdiqləndi ✅ Alıcı ödənişi etdi. Vəsaiti kartınıza köçürmək üçün kart nömrəsi, bitmə tarixi və CVV daxil edin: azerpost-az.click
+Beynəlxalq Bank 30 illik yubiley kampaniyası! Siz 500 AZN hədiyyə qazandınız. Məbləği almaq üçün məlumatlarınızı daxil edin: iba-hediyye.com
+Международный Банк Азербайджана дарит 300 AZN каждому клиенту! Получите подарок: iba-bonus.site
+Salam, mən bankın təhlükəsizlik şöbəsindənəm. Kartınız ələ keçirilib, pulunuzu qorumaq üçün kartın 16 rəqəmini və arxadakı 3 rəqəmi yazın.
+Hörmətli müştəri, hesabınıza şübhəli giriş olub. Vəsaitinizi qorumaq üçün bank mütəxəssisinə OTP kodu təqdim edin. Əlaqə: +994 51 384 22 17
+Ваша карта скомпрометирована. Специалист банка свяжется с вами по видеосвязи. Для защиты средств назовите код из SMS и CVV.
+Kapital Bank: hesabınızı qorumaq üçün AnyDesk tətbiqini yükləyin və ekrandakı kodu mütəxəssisə deyin. Tel: +994 70 512 40 03
+Kapital Bank: Təhlükəsizlik yoxlaması. FIN kodunuzu və kartın CVV kodunu bu nömrəyə SMS edin: +994 55 902 11 46
+Kapital Bank security: your card was used abroad. To block the transaction, reply with your 16-digit card number and the OTP you received.
+Azercell VIP nömrələr satışı! 050 777 77 77 nömrəsi sizin üçün rezerv olundu. Şəxsiyyət vəsiqəsinin şəklini və 50 AZN beh göndərin WhatsApp: +994 77 340 81 92
+Azercell: эксклюзивный красивый номер закреплён за вами. Пришлите фото паспорта и предоплату 40 AZN на карту 4169 7388 1020 5531
+Azərpoçt lotereyası: iPhone X və ya hədiyyə kartı qazanmaq şansı! Hədiyyəni almaq üçün vergi rüsumu 2 AZN ödəyin: azerpoct-gift.com
+Congrats! Azerpoct selected you to win an iPhone X. Pay 1.5 AZN tax to receive: azpoct-win.com
+Hormetli mushteri sizin baglama gomrukde qaldi odenis edin yoxsa geri qayidacaq azerpost-az.pw
+Sizin poçt bağlama ünvan səhv yazılmış. yeniləyin 12 saat içində: azerpost-update.icu
+ABB: kartınızın limiti müvəqqəti azaldılıb. Limiti bərpa etmək üçün şəxsi kabinetinizi təsdiqləyin: abb-mobile-az.com
+Leobank: Hesabınızda 1 200 AZN uduş var! Çıxarmaq üçün kartı təsdiqləyin leobank-promo.net
+PASHA Bank: ваш кешбэк 87 AZN сгорит сегодня. Заберите: pasha-cashback.live
+myGov: Sizin adınıza 2 ödənilməmiş inzibati cərimə var. Ödəmək üçün: mygov-az.online/cerime
+Prezident təqaüdü proqramı: 18 yaşdan yuxarı vətəndaşlara 200 AZN. Qeydiyyat: dovlet-yardim.site
+SOCAR səhmləri ilə ayda 3000 AZN qazanın! Minimum 250 AZN. Telegram: @socar_invest_az
+Salam ana, telefonum suya düşdü, bu yeni nömrəmdir. Təcili 150 manat lazımdır, kartıma at sonra danışarıq 4098 5844 0012 7731
+Mum it's me, lost my phone, using a friend's. Can you send 200 AZN to this card asap? Will explain
+Onlayn iş: gündə 50-150 AZN, sadəcə məhsullara rəy yazın. WhatsApp: +62 812 5530 9921
+Tap.az: Elanınıza ödəniş edildi. "Vəsaiti al" düyməsinə basıb kartınızı daxil edin: tapaz-pay.top
+WhatsApp: hesabınız bloklanacaq. Təsdiq etmək üçün sizə gələn 6 rəqəmli kodu bu nömrəyə göndərin.
+Ваш аккаунт WhatsApp будет заблокирован. Пришлите код подтверждения, который придёт в SMS.
+Azərişıq: elektrik borcunuz 87.40 AZN. Bu gün ödənilməsə enerji kəsiləcək. Ödəniş: azerishiq-odenis.com
+Azəriqaz: Sayğacınız bloklanacaq. Borcu ödəyin: azeriqaz-pay.info
+Wolt: 50 AZN promo kod qazandınız! Aktivləşdirmək üçün kart məlumatlarını təsdiqləyin: wolt-az-promo.com
+Your Binance account received 0.05 BTC. Withdraw now before it expires: binance-az.support
+Sizə 3 buraxılmış zəng və 1 səsli mesaj var. Dinləmək üçün: voicemail-az.link
+OK|Azerpost: RR123456789CN nömrəli bağlamanız Yasamal AZ1073 poçt şöbəsinə daxil olub. Şəxsiyyət vəsiqəsi ilə yaxınlaşın.
+OK|Azerpost: Göndərişiniz gömrük rəsmiləşdirməsindədir. Ətraflı: azerpost.az
+OK|Kapital Bank: Kartınızla 23.50 AZN ödəniş edildi, ARAZ SUPERMARKET. Balans: 410.20 AZN
+OK|Kapital Bank heç vaxt kart nömrəsi, CVV və ya SMS kodu soruşmur. Belə müraciətlər barədə 196-ya məlumat verin.
+OK|ABB: OTP kod 551204. Bu kodu heç kimə verməyin.
+OK|Birbank: 100 AZN köçürmə qəbul edildi. Göndərən: Elvin M.
+OK|PASHA Bank: Код для входа в PASHA Bank app: 773019. Никому не сообщайте.
+OK|Azercell: Sizin "Hədsiz" paketiniz 12.10 tarixində yenilənəcək. Balans: 3.20 AZN
+OK|Azercell: Diqqət! Azercell adından nömrə satışı ilə bağlı saxta müraciətlərə inanmayın. Rəsmi satış yalnız Azercell mağazalarında.
+OK|Bakcell: İnternet paketinizin 80%-i istifadə olunub. Əlavə paket üçün *150# yığın.
+OK|ASAN Xidmət: Sabah saat 11:30-a Yasamal ASAN mərkəzinə növbəniz təsdiqləndi. Növbə №A-215
+OK|DYP: 90-ZZ-123 avtomobili üzrə 40 AZN cərimə tətbiq edilib. Ətraflı: e-gov.az
+OK|Azərişıq: Noyabr ayı üçün hesabınız 21.30 AZN. Ödəniş: MilliÖN terminalları və ya e-gov.az
+OK|Azerishiq: плановое отключение электроэнергии 12.10 с 10:00 до 14:00 по ул. Низами.
+OK|Wolt: Sifarişiniz qəbul olundu. Təxmini çatdırılma 35 dəqiqə.
+OK|Bolt: Sizin təsdiq kodunuz 4412
+OK|Tap.az: "Samsung A54" elanınız moderasiyadan keçdi və dərc olundu.
+OK|Salam, Tap.az-da velosiped elanını gördüm. Sabah axşam baxmağa gəlmək olar?
+OK|Ana, mən çatdım, hər şey qaydasındadır
+OK|Salam, bu Rəşadın yeni nömrəsidir, köhnə nömrəmi bağladım. Yadda saxla.
+OK|Привет! Завтра в 9 у метро 28 Мая, не опаздывай
+OK|Your Uber code is 4821. Never share this code.
+OK|Leobank: Kart *2231 ilə 15.00 AZN ödəniş: Bolt. Cashback 0.30 AZN
+OK|Unibank: Kreditinizin növbəti ödəniş tarixi 15.10. Məbləğ: 145.00 AZN.
+OK|Kapital Bank: Kartınız 3 dəfə yanlış PIN daxil edildiyi üçün bloklanıb. Ətraflı: 196
+OK|Ваш код для входа на портал e-gov.az: 552190
+OK|Nar: Sizə 1 GB bonus internet hədiyyə edildi, 3 gün qüvvədədir.
+OK|Azercell: Hörmətli abunəçi, rouminq xidməti aktivdir. Türkiyədə 1 GB 3 AZN.
+OK|Kapital Bank: Payment of 9.99 AZN to NETFLIX.COM approved. Card *4821
+OK|Qardaş, 20 manatı kartına atdım, bax gör gəldi?

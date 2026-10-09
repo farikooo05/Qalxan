@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qalxan · Scam Campaign Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1020; --panel: #121a2e; --panel2: #0f1628; --line: #223052; --text: #e6ebf5; --muted: #8b97b5;
+    --red: #ff4d5e; --red-bg: rgba(255,77,94,.12); --amber: #ffb547; --amber-bg: rgba(255,181,71,.12);
+    --green: #2fd18b; --green-bg: rgba(47,209,139,.12); --blue: #4c8dff; --blue-bg: rgba(76,141,255,.14);
+    --grey: #6b7694;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 Inter, system-ui, sans-serif; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line);
+           background: linear-gradient(180deg, #0f1730, var(--bg)); position: sticky; top: 0; z-index: 5; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo svg { width: 30px; height: 30px; }
+  .logo b { font-size: 20px; letter-spacing: .3px; }
+  .logo span { color: var(--muted); font-size: 13px; }
+  .spacer { flex: 1; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+          border: 1px solid var(--line); color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grey); }
+  .live .dot { background: var(--green); box-shadow: 0 0 0 4px rgba(47,209,139,.18); animation: pulse 1.4s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(47,209,139,.04); } }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { background: transparent; border: 0; color: var(--muted); padding: 5px 10px; cursor: pointer; font: inherit; font-size: 12px; }
+  .seg button.on { background: var(--blue-bg); color: var(--text); }
+  main { padding: 18px 24px 40px; max-width: 1560px; margin: 0 auto; }
+  .tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .tile .k { color: var(--muted); font-size: 12px; }
+  .tile .v { font-size: 28px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .tile .s { color: var(--muted); font-size: 12px; }
+  .compare { margin-top: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .compare h3 { margin: 0 0 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .bar { display: grid; grid-template-columns: 200px 1fr 70px; align-items: center; gap: 12px; margin: 6px 0; }
+  .track { height: 14px; background: var(--panel2); border-radius: 7px; overflow: hidden; border: 1px solid var(--line); }
+  .fill { height: 100%; border-radius: 7px; transition: width .5s; }
+  .bar .pct { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 16px 0; }
+  button.btn { background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: 8px 14px;
+               border-radius: 8px; cursor: pointer; font: inherit; font-weight: 600; }
+  button.btn:hover { border-color: var(--blue); }
+  button.primary { background: var(--blue); border-color: var(--blue); }
+  button.danger { background: var(--red); border-color: var(--red); color: #fff; }
+  button.ghost { background: transparent; }
+  select, textarea { background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 8px;
+                     padding: 8px 10px; font: inherit; }
+  .grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+  .card > h2 { margin: 0; padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--line);
+               display: flex; justify-content: space-between; align-items: center; }
+  .card > h2 small { color: var(--muted); font-weight: 500; }
+  #campaigns { padding: 12px; display: flex; flex-direction: column; gap: 12px; max-height: 760px; overflow: auto; }
+  .camp { border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 10px; padding: 14px; background: var(--panel2);
+ }
+  .camp.blocked { border-left-color: var(--green); opacity: .9; }
+  .msg.fresh { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: rgba(76,141,255,.25); } }
+  .camp .top { display: flex; justify-content: space-between; gap: 12px; }
+  .camp .title { font-weight: 700; font-size: 15px; }
+  .camp .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .camp .count { text-align: right; }
+  .camp .count b { font-size: 30px; font-weight: 800; color: var(--red); font-variant-numeric: tabular-nums; }
+  .camp.blocked .count b { color: var(--green); }
+  .camp .count div { color: var(--muted); font-size: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 11.5px; padding: 3px 8px; border-radius: 6px; background: var(--red-bg); color: #ffb3bb; border: 1px solid rgba(255,77,94,.25); }
+  .chip.phone { background: var(--amber-bg); color: #ffd79a; border-color: rgba(255,181,71,.25); }
+  .chip.flag { background: var(--blue-bg); color: #b9d0ff; border-color: rgba(76,141,255,.25); }
+  .sample { margin-top: 10px; font-size: 12.5px; color: #c6cfe4; background: #0b1224; border: 1px dashed var(--line);
+            padding: 8px 10px; border-radius: 8px; }
+  .kwline { margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .kwline b { color: var(--amber); }
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 8px; }
+  .status.active { background: var(--red-bg); color: var(--red); }
+  .status.blocked { background: var(--green-bg); color: var(--green); }
+  .empty { color: var(--muted); padding: 30px; text-align: center; }
+  #feed { max-height: 760px; overflow: auto; }
+  .msg { display: grid; grid-template-columns: 112px 1fr auto; gap: 10px; padding: 9px 14px; border-bottom: 1px solid #1a2442;
+         cursor: pointer; }
+  .msg:hover { background: #151f38; }
+  .msg .t { color: var(--muted); font-size: 11.5px; }
+  .msg .snd { color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg .txt { font-size: 13px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .msg.scam { background: linear-gradient(90deg, rgba(255,77,94,.09), transparent 60%); }
+  .badge { font-size: 10.5px; font-weight: 800; padding: 3px 7px; border-radius: 6px; letter-spacing: .4px; white-space: nowrap; }
+  .badge.scam { background: var(--red-bg); color: var(--red); }
+  .badge.suspicious { background: var(--amber-bg); color: var(--amber); }
+  .badge.safe { background: var(--green-bg); color: var(--green); }
+  .badge.blockedb { background: var(--green); color: #05251a; }
+  .sub { display: flex; gap: 6px; margin-top: 4px; align-items: center; flex-wrap: wrap; }
+  .kw { font-size: 10.5px; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); }
+  .kw.miss { color: var(--amber); border-color: rgba(255,181,71,.4); }
+  .check { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .check textarea { width: 100%; min-height: 110px; resize: vertical; }
+  .result { padding: 14px 16px; }
+  .verdict { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; }
+  .verdict.scam { color: var(--red); } .verdict.suspicious { color: var(--amber); } .verdict.safe { color: var(--green); }
+  .explain { margin-top: 8px; font-size: 14px; color: #d5dcef; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .examples { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .examples button { font-size: 11.5px; padding: 4px 8px; }
+  @media (max-width: 1100px) { .grid, .check { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { main { padding: 12px 16px; } header { flex-wrap: wrap; padding: 12px 16px; } .bar { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 32 32" fill="none"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7L16 2Z" fill="#1d3a7a" stroke="#4c8dff" stroke-width="1.6"/><path d="m11 16 3.5 3.5L21.5 12" stroke="#2fd18b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div><b>Qalxan</b><br><span>Scam campaign radar for mobile operators</span></div>
+  </div>
+  <div class="spacer"></div>
+  <span class="pill" id="llmPill"><span class="dot"></span> Gemini: off</span>
+  <span class="pill" id="livePill"><span class="dot"></span><span id="liveText">Paused</span></span>
+  <div class="seg" id="langSeg">
+    <button data-l="az">AZ</button><button data-l="ru">RU</button><button data-l="en" class="on">EN</button>
+  </div>
+</header>
+
+<main>
+  <section class="tiles">
+    <div class="tile"><div class="k">SMS scanned</div><div class="v mono" id="sProcessed">0</div><div class="s">live network stream</div></div>
+    <div class="tile"><div class="k">Scams caught by Qalxan</div><div class="v mono" id="sCaught" style="color:var(--red)">0</div><div class="s" id="sCaughtOf">of 0 scam SMS</div></div>
+    <div class="tile"><div class="k">Caught by keyword filter (today)</div><div class="v mono" id="sKw" style="color:var(--amber)">0</div><div class="s">the current approach</div></div>
+    <div class="tile"><div class="k">False alarms on genuine SMS</div><div class="v mono" id="sFa" style="color:var(--green)">0</div><div class="s">bank codes, payments, chats</div></div>
+    <div class="tile"><div class="k">Blocked / subscribers warned</div><div class="v mono" id="sBlocked">0 / 0</div><div class="s">after analyst action</div></div>
+  </section>
+
+  <section class="compare">
+    <h3>Share of scam SMS detected in this stream</h3>
+    <div class="bar"><div>Qalxan</div><div class="track"><div class="fill" id="bQ" style="width:0;background:var(--blue)"></div></div><div class="pct mono" id="pQ">0%</div></div>
+    <div class="bar"><div>Keyword filter (today)</div><div class="track"><div class="fill" id="bK" style="width:0;background:var(--amber)"></div></div><div class="pct mono" id="pK">0%</div></div>
+  </section>
+
+  <section class="controls">
+    <button class="btn primary" id="btnRun">▶ Start network traffic</button>
+    <select id="scheme"></select>
+    <button class="btn danger" id="btnLaunch">⚡ Launch scam campaign</button>
+    <button class="btn ghost" id="btnReset">Reset</button>
+    <span class="muted" id="pending"></span>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Scam campaigns <small id="campCount">0 detected</small></h2>
+      <div id="campaigns"><div class="empty">No campaigns yet. Start traffic and launch a scam campaign.</div></div>
+    </div>
+    <div class="card">
+      <h2>Live SMS stream <small>click a message for the explanation</small></h2>
+      <div id="feed"><div class="empty">Waiting for traffic…</div></div>
+    </div>
+  </section>
+
+  <section class="check">
+    <div class="card">
+      <h2>Check a message <small>what a subscriber gets from the bot</small></h2>
+      <div style="padding:14px 16px">
+        <textarea id="checkText" placeholder="Paste a suspicious SMS in Azerbaijani, Russian or English…"></textarea>
+        <div class="controls" style="margin:10px 0 0"><button class="btn primary" id="btnCheck">Check</button>
+          <span class="muted">Try:</span></div>
+        <div class="examples" id="examples"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Verdict <small id="resMeta"></small></h2>
+      <div class="result" id="result"><div class="muted">Paste a message or click one in the stream.</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const TYPE = {
+  bank_card_block: {en:"Fake bank: card blocked", ru:"Фальшивый банк: карта заблокирована", az:"Saxta bank: kart bloklanıb"},
+  bank_otp_theft: {en:"SMS code theft", ru:"Кража кода из СМС", az:"SMS kodun oğurlanması"},
+  prize_lottery: {en:"Fake prize / lottery", ru:"Фальшивый выигрыш", az:"Saxta uduş"},
+  parcel_delivery: {en:"Fake parcel fee", ru:"Фальшивая оплата посылки", az:"Saxta bağlama ödənişi"},
+  fine_government: {en:"Fake fine / state debt", ru:"Фальшивый штраф / долг", az:"Saxta cərimə / borc"},
+  marketplace_buyer: {en:"Fake Tap.az buyer", ru:"Фальшивый покупатель Tap.az", az:"Saxta Tap.az alıcısı"},
+  relative_emergency: {en:"\"Mom, new number\"", ru:"«Мама, новый номер»", az:"\"Ana, yeni nömrə\""},
+  investment_job: {en:"Fake investment / job", ru:"Фальшивые инвестиции", az:"Saxta investisiya"},
+  number_disconnect: {en:"Fake SIM disconnection", ru:"Фальшивое отключение номера", az:"Saxta nömrə bağlanması"},
+  social_benefit: {en:"Fake state payment", ru:"Фальшивая соцвыплата", az:"Saxta sosial ödəniş"},
+  other: {en:"Scam", ru:"Мошенничество", az:"Fırıldaq"},
+};
+const FLAG = {
+  brand_unofficial_link:"brand + unofficial link", asks_code:"asks for code/PIN/card", personal_data:"asks for card/ID data",
+  remote_access:"remote-access app", lookalike_domain:"lookalike domain",
+  mixed_script:"letters swapped", shortener:"short link", threat:"threat", prize:"prize", money_request:"money request",
+  new_number:"\"new number\"", easy_money:"easy money", urgency:"urgency", foreign_phone:"foreign phone",
+};
+const VERDICT = {scam:{en:"SCAM",ru:"МОШЕННИЧЕСТВО",az:"FIRILDAQ"}, suspicious:{en:"SUSPICIOUS",ru:"ПОДОЗРИТЕЛЬНО",az:"ŞÜBHƏLİ"}, safe:{en:"SAFE",ru:"БЕЗОПАСНО",az:"TƏHLÜKƏSİZ"}};
+const EXAMPLES = [
+  "Kapital Bank: Kartınız *4821 təhlükəsizlik səbəbi ilə bloklanıb. Bərpa üçün keçid edin: kapitalbank-az.online/login",
+  "Код подтверждения Birbank: 482913. Никому не сообщайте этот код, даже сотрудникам банка.",
+  "Мама, это мой новый номер, телефон сломался. Срочно нужно 300 AZN, переведи на карту 4169 5853 1234 0099",
+  "Azərpoçt: Bağlamanız gömrükdə saxlanılıb. Rüsum 1.99 AZN ödəyin: bit.ly/3xKp9q",
+  "Rabitə Nazirliyi: nömrəniz 24 saat ərzində söndürüləcək. Qarşısını almaq üçün: sim-qeydiyyat.top",
+];
+let lang = "en", campaigns = new Map(), feedItems = [], running = false;
+const $ = id => document.getElementById(id);
+const esc = s => (s ?? "").toString().replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const tname = t => (TYPE[t] || TYPE.other)[lang];
+const hhmmss = ts => new Date(ts * 1000).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+
+function renderStats(s) {
+  $("sProcessed").textContent = s.processed;
+  $("sCaught").textContent = s.qalxan_caught;
+  $("sCaughtOf").textContent = `of ${s.scams_true} scam SMS`;
+  $("sKw").textContent = s.keyword_caught;
+  $("sFa").textContent = s.false_alarms;
+  $("sBlocked").textContent = `${s.blocked} / ${s.warned}`;
+  const q = s.scams_true ? s.qalxan_caught / s.scams_true : 0, k = s.scams_true ? s.keyword_caught / s.scams_true : 0;
+  $("bQ").style.width = (q * 100) + "%"; $("pQ").textContent = Math.round(q * 100) + "%";
+  $("bK").style.width = (k * 100) + "%"; $("pK").textContent = Math.round(k * 100) + "%";
+}
+
+function renderCampaigns() {
+  const list = [...campaigns.values()].sort((a, b) => b.last_seen - a.last_seen);
+  $("campCount").textContent = `${list.length} detected`;
+  if (!list.length) { $("campaigns").innerHTML = '<div class="empty">No campaigns yet. Start traffic and launch a scam campaign.</div>'; return; }
+  $("campaigns").innerHTML = list.map(c => `
+    <div class="camp ${c.status}">
+      <div class="top">
+        <div>
+          <div class="title">#${c.id} · ${esc(tname(c.scam_type))}<span class="status ${c.status}">${c.status === "blocked" ? "BLOCKED" : "ACTIVE"}</span></div>
+          <div class="meta">${c.brand ? "Impersonates <b>" + esc(c.brand) + "</b> · " : ""}started ${hhmmss(c.first_seen)} · ${c.per_minute}/min now</div>
+        </div>
+        <div class="count"><b class="mono">${c.count}</b><div>SMS in campaign</div></div>
+      </div>
+      <div class="chips">${(c.hosts || c.domains).slice(0,4).map(d => `<span class="chip mono">${esc(d)}</span>`).join("")}${c.phones.slice(0,3).map(p => `<span class="chip phone mono">+${esc(p)}</span>`).join("")}</div>
+      <div class="sample">${esc(c.samples[0] || "")}</div>
+      <div class="kwline">Keyword filter would have caught <b>${c.keyword_hits} of ${c.count}</b> · ${c.warned} subscribers warned</div>
+      <div class="actions">
+        ${c.status === "blocked" ? "" : `<button class="btn danger" onclick="act(${c.id},'block')">Block campaign</button>`}
+        <button class="btn" onclick="act(${c.id},'warn')">Warn ${Math.max(0, c.count - c.warned)} recipients</button>
+      </div>
+    </div>`).join("");
+}
+
+function msgRow(m) {
+  const b = m.blocked ? '<span class="badge blockedb">BLOCKED</span>' : `<span class="badge ${m.verdict}">${VERDICT[m.verdict][lang]}</span>`;
+  const kw = m.verdict === "scam" ? `<span class="kw ${m.keyword_filter_hit ? "" : "miss"}">${m.keyword_filter_hit ? "keyword filter: caught" : "keyword filter: missed"}</span>` : "";
+  const camp = m.campaign_id ? `<span class="kw">campaign #${m.campaign_id}</span>` : "";
+  const src = m.origin === "report" ? '<span class="kw">subscriber report</span>' : "";
+  return `<div class="msg ${m.verdict}${m.id > lastSeenId ? " fresh" : ""}" data-id="${m.id}">
+    <div><div class="t mono">${hhmmss(m.ts)}</div><div class="snd">${esc(m.sender)}</div></div>
+    <div><div class="txt">${esc(m.text)}</div><div class="sub">${kw}${camp}${src}</div></div>
+    <div>${b}</div></div>`;
+}
+let lastSeenId = 0;
+function renderFeed() {
+  $("feed").innerHTML = feedItems.length ? feedItems.map(msgRow).join("") : '<div class="empty">Waiting for traffic…</div>';
+  if (feedItems.length) lastSeenId = Math.max(lastSeenId, feedItems[0].id);
+}
+
+function showResult(r) {
+  const flags = (r.red_flags || []).map(f => `<span class="chip flag">${esc(FLAG[f] || f)}</span>`).join("");
+  const doms = (r.hosts || r.domains || []).map(d => `<span class="chip mono">${esc(d)}</span>`).join("");
+  $("result").innerHTML = `
+    <div class="verdict ${r.verdict}">${VERDICT[r.verdict][lang]}${r.scam_type && r.verdict !== "safe" ? ` · <span style="font-weight:600">${esc(tname(r.scam_type))}</span>` : ""}</div>
+    <div class="explain">${esc(r.explanation[lang])}</div>
+    <div class="chips">${flags}${doms}</div>
+    <div class="sample" style="margin-top:12px">${esc(r.text)}</div>
+    <div class="muted" style="margin-top:10px">Scam probability ${(r.probability * 100).toFixed(1)}% · decided by ${r.source === "model+gemini" ? "Qalxan model + Gemini (grey zone)" : "Qalxan model"} · ${r.latency_ms} ms · keyword filter: ${r.keyword_filter_hit ? "caught" : "missed"}</div>`;
+  $("resMeta").textContent = r.brand ? `impersonates ${r.brand}` : "";
+  window._last = r;
+}
+
+async function act(id, what) {
+  const r = await fetch(`/api/campaigns/${id}/${what}`, {method: "POST"}).then(r => r.json());
+  campaigns.set(r.id, r); renderCampaigns();
+}
+
+function setRunning(v) {
+  running = v;
+  $("btnRun").textContent = v ? "❚❚ Pause traffic" : "▶ Start network traffic";
+  $("liveText").textContent = v ? "Live" : "Paused";
+  $("liveText").parentElement.classList.toggle("live", v);
+}
+
+$("btnRun").onclick = async () => { await fetch(running ? "/api/sim/stop" : "/api/sim/start?rate=3", {method: "POST"}); setRunning(!running); };
+$("btnLaunch").onclick = async () => {
+  const r = await fetch("/api/sim/launch", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({scheme: $("scheme").value, n: 60})}).then(r => r.json());
+  $("pending").textContent = `Campaign launched: ${r.queued} scam SMS entering the network via ${r.domains.length} domains…`;
+  setRunning(true);
+};
+$("btnReset").onclick = async () => { await fetch("/api/sim/reset", {method: "POST"}); };
+$("btnCheck").onclick = async () => {
+  const text = $("checkText").value.trim(); if (!text) return;
+  $("result").innerHTML = '<div class="muted">Analyzing…</div>';
+  const r = await fetch("/api/analyze", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({text})}).then(r => r.json());
+  showResult(r);
+};
+$("feed").onclick = e => { const el = e.target.closest(".msg"); if (!el) return; const m = feedItems.find(x => x.id == el.dataset.id); if (m) showResult(m); };
+$("langSeg").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return; lang = b.dataset.l;
+  [...$("langSeg").children].forEach(x => x.classList.toggle("on", x === b));
+  renderCampaigns(); renderFeed(); if (window._last) showResult(window._last); fillSchemes();
+};
+EXAMPLES.forEach((t, i) => { const b = document.createElement("button"); b.className = "btn"; b.textContent = ["Fake bank", "Real bank code", "Mom, new number", "Parcel fee", "New scheme"][i];
+  b.onclick = () => { $("checkText").value = t; $("btnCheck").click(); }; $("examples").appendChild(b); });
+
+let SCHEMES = [];
+function fillSchemes() {
+  const cur = $("scheme").value;
+  $("scheme").innerHTML = SCHEMES.map(s => `<option value="${s}">${esc(tname(s))}</option>`).join("");
+  if (cur) $("scheme").value = cur;
+}
+
+async function init() {
+  const s = await fetch("/api/state").then(r => r.json());
+  SCHEMES = s.schemes; fillSchemes();
+  s.campaigns.forEach(c => campaigns.set(c.id, c));
+  feedItems = s.recent; renderStats(s.stats); renderCampaigns(); renderFeed(); setRunning(s.sim.running);
+  if (s.llm) { $("llmPill").innerHTML = '<span class="dot" style="background:var(--green)"></span> Gemini: on (grey zone)'; }
+  const es = new EventSource("/api/events");
+  let pendingRender = false;
+  es.onmessage = e => {
+    const ev = JSON.parse(e.data);
+    if (ev.type === "message") { feedItems.unshift(ev.data); feedItems = feedItems.slice(0, 80); if (!running && ev.data.origin === "network") setRunning(true); }
+    else if (ev.type === "campaign") campaigns.set(ev.data.id, ev.data);
+    else if (ev.type === "stats") renderStats(ev.data);
+    else if (ev.type === "reset") { campaigns.clear(); feedItems = []; $("pending").textContent = ""; setRunning(false);
+      renderStats({processed:0,qalxan_caught:0,scams_true:0,keyword_caught:0,false_alarms:0,blocked:0,warned:0}); }
+    if (!pendingRender) { pendingRender = true; requestAnimationFrame(() => { renderFeed(); renderCampaigns(); pendingRender = false; }); }
+  };
+}
+init();
+</script>
+</body>
+</html>

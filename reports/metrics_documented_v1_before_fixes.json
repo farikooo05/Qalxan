@@ -1,0 +1,119 @@
+{
+  "results": [
+    {
+      "precision": 0.75,
+      "recall": 0.3,
+      "f1": 0.4285714285714285,
+      "fpr": 0.13333333333333333,
+      "tp": 12,
+      "fp": 4,
+      "fn": 28,
+      "tn": 26,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.45,
+      "f1_ru": 0.4444444444444445,
+      "f1_en": 0.2857142857142857,
+      "latency_ms": 0.004385714419186115,
+      "name": "Keyword filter (today)",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      }
+    },
+    {
+      "precision": 0.95,
+      "recall": 0.95,
+      "f1": 0.9500000000000001,
+      "fpr": 0.06666666666666667,
+      "tp": 38,
+      "fp": 2,
+      "fn": 2,
+      "tn": 28,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.9642857142857143,
+      "f1_ru": 0.923076923076923,
+      "f1_en": 0.9090909090909091,
+      "latency_ms": 0.16087000008805522,
+      "name": "Classic ML (char n-grams)",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      }
+    },
+    {
+      "precision": 0.9714285714285714,
+      "recall": 0.85,
+      "f1": 0.9066666666666667,
+      "fpr": 0.03333333333333333,
+      "tp": 34,
+      "fp": 1,
+      "fn": 6,
+      "tn": 29,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.8979591836734693,
+      "f1_ru": 0.923076923076923,
+      "f1_en": 0.923076923076923,
+      "latency_ms": 0.34728000007037607,
+      "name": "Qalxan model",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      }
+    }
+  ],
+  "type_accuracy": 0.0,
+  "failures": {
+    "missed_scams": [
+      {
+        "text": "Salam, mən bankın təhlükəsizlik şöbəsindənəm. Kartınız ələ keçirilib, pulunuzu qorumaq üçün kartın 16 rəqəmini və arxadakı 3 rəqəmi yazın.",
+        "scheme": "real_scam",
+        "p": 0.006
+      },
+      {
+        "text": "Kapital Bank: hesabınızı qorumaq üçün AnyDesk tətbiqini yükləyin və ekrandakı kodu mütəxəssisə deyin. Tel: +994 70 512 40 03",
+        "scheme": "real_scam",
+        "p": 0.14
+      },
+      {
+        "text": "Azercell VIP nömrələr satışı! 050 777 77 77 nömrəsi sizin üçün rezerv olundu. Şəxsiyyət vəsiqəsinin şəklini və 50 AZN beh göndərin WhatsApp: +994 77 340 81 92",
+        "scheme": "real_scam",
+        "p": 0.18
+      },
+      {
+        "text": "Azercell: эксклюзивный красивый номер закреплён за вами. Пришлите фото паспорта и предоплату 40 AZN на карту 4169 7388 1020 5531",
+        "scheme": "real_scam",
+        "p": 0.001
+      },
+      {
+        "text": "SOCAR səhmləri ilə ayda 3000 AZN qazanın! Minimum 250 AZN. Telegram: @socar_invest_az",
+        "scheme": "real_scam",
+        "p": 0.185
+      },
+      {
+        "text": "WhatsApp: hesabınız bloklanacaq. Təsdiq etmək üçün sizə gələn 6 rəqəmli kodu bu nömrəyə göndərin.",
+        "scheme": "real_scam",
+        "p": 0.007
+      }
+    ],
+    "false_alarms": [
+      {
+        "text": "Kapital Bank: Payment of 9.99 AZN to NETFLIX.COM approved. Card *4821",
+        "category": "real_legit",
+        "p": 0.999
+      }
+    ],
+    "grey_band": 1
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "results": [
+    {
+      "precision": 0.75,
+      "recall": 0.3,
+      "f1": 0.4285714285714285,
+      "fpr": 0.13333333333333333,
+      "tp": 12,
+      "fp": 4,
+      "fn": 28,
+      "tn": 26,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.45,
+      "f1_ru": 0.4444444444444445,
+      "f1_en": 0.2857142857142857,
+      "latency_ms": 0.005921428757054465,
+      "name": "Keyword filter (today)",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      }
+    },
+    {
+      "precision": 0.95,
+      "recall": 0.95,
+      "f1": 0.9500000000000001,
+      "fpr": 0.06666666666666667,
+      "tp": 38,
+      "fp": 2,
+      "fn": 2,
+      "tn": 28,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.9642857142857143,
+      "f1_ru": 0.923076923076923,
+      "f1_en": 0.9090909090909091,
+      "latency_ms": 0.16355571486721082,
+      "name": "Classic ML (char n-grams)",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      }
+    },
+    {
+      "precision": 1.0,
+      "recall": 0.9,
+      "f1": 0.9473684210526316,
+      "fpr": 0.0,
+      "tp": 36,
+      "fp": 0,
+      "fn": 4,
+      "tn": 30,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.9411764705882353,
+      "f1_ru": 0.923076923076923,
+      "f1_en": 1.0,
+      "latency_ms": 0.3765657144997801,
+      "name": "Qalxan model",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      }
+    },
+    {
+      "precision": 1.0,
+      "recall": 0.975,
+      "f1": 0.9873417721518987,
+      "fpr": 0.0,
+      "tp": 39,
+      "fp": 0,
+      "fn": 1,
+      "tn": 30,
+      "recall_obfuscated": 0.0,
+      "recall_novel": 0.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.9811320754716981,
+      "f1_ru": 1.0,
+      "f1_en": 1.0,
+      "latency_ms": 197.91360142906862,
+      "name": "Qalxan + Gemini (full cascade)",
+      "n": {
+        "total": 70,
+        "obfuscated": 0,
+        "novel": 0,
+        "hard_negatives": 0
+      },
+      "llm_calls": 4,
+      "llm_failed": 0
+    }
+  ],
+  "type_accuracy": 0.0,
+  "failures": {
+    "missed_scams": [
+      {
+        "text": "Kapital Bank: hesabınızı qorumaq üçün AnyDesk tətbiqini yükləyin və ekrandakı kodu mütəxəssisə deyin. Tel: +994 70 512 40 03",
+        "scheme": "real_scam",
+        "p": 0.152
+      },
+      {
+        "text": "Azercell VIP nömrələr satışı! 050 777 77 77 nömrəsi sizin üçün rezerv olundu. Şəxsiyyət vəsiqəsinin şəklini və 50 AZN beh göndərin WhatsApp: +994 77 340 81 92",
+        "scheme": "real_scam",
+        "p": 0.494
+      },
+      {
+        "text": "Azercell: эксклюзивный красивый номер закреплён за вами. Пришлите фото паспорта и предоплату 40 AZN на карту 4169 7388 1020 5531",
+        "scheme": "real_scam",
+        "p": 0.001
+      },
+      {
+        "text": "SOCAR səhmləri ilə ayda 3000 AZN qazanın! Minimum 250 AZN. Telegram: @socar_invest_az",
+        "scheme": "real_scam",
+        "p": 0.163
+      }
+    ],
+    "false_alarms": [],
+    "grey_band": 2
+  }
+}

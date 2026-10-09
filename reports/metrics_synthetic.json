@@ -1,0 +1,184 @@
+{
+  "results": [
+    {
+      "precision": 0.9521276595744681,
+      "recall": 0.30134680134680136,
+      "f1": 0.45780051150895146,
+      "fpr": 0.03225806451612903,
+      "tp": 179,
+      "fp": 9,
+      "fn": 415,
+      "tn": 270,
+      "recall_obfuscated": 0.2826086956521739,
+      "recall_novel": 0.11734693877551021,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.3262411347517731,
+      "f1_ru": 0.47107438016528924,
+      "f1_en": 0.5891472868217055,
+      "latency_ms": 0.0038970217673067443,
+      "name": "Keyword filter (today)",
+      "n": {
+        "total": 873,
+        "obfuscated": 184,
+        "novel": 196,
+        "hard_negatives": 192
+      }
+    },
+    {
+      "precision": 0.9153094462540716,
+      "recall": 0.9461279461279462,
+      "f1": 0.9304635761589404,
+      "fpr": 0.1863799283154122,
+      "tp": 562,
+      "fp": 52,
+      "fn": 32,
+      "tn": 227,
+      "recall_obfuscated": 0.9347826086956522,
+      "recall_novel": 1.0,
+      "fpr_hard_negatives": 0.1875,
+      "f1_az": 0.9211618257261411,
+      "f1_ru": 0.9197860962566845,
+      "f1_en": 0.9545454545454546,
+      "latency_ms": 0.16075223369602826,
+      "name": "Classic ML (char n-grams)",
+      "n": {
+        "total": 873,
+        "obfuscated": 184,
+        "novel": 196,
+        "hard_negatives": 192
+      }
+    },
+    {
+      "precision": 1.0,
+      "recall": 0.9612794612794613,
+      "f1": 0.9802575107296138,
+      "fpr": 0.0,
+      "tp": 571,
+      "fp": 0,
+      "fn": 23,
+      "tn": 279,
+      "recall_obfuscated": 0.9945652173913043,
+      "recall_novel": 1.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.960352422907489,
+      "f1_ru": 0.9855907780979827,
+      "f1_en": 1.0,
+      "latency_ms": 0.3297594501258206,
+      "name": "Qalxan model",
+      "n": {
+        "total": 873,
+        "obfuscated": 184,
+        "novel": 196,
+        "hard_negatives": 192
+      }
+    },
+    {
+      "precision": 1.0,
+      "recall": 0.9848484848484849,
+      "f1": 0.9923664122137404,
+      "fpr": 0.0,
+      "tp": 585,
+      "fp": 0,
+      "fn": 9,
+      "tn": 279,
+      "recall_obfuscated": 1.0,
+      "recall_novel": 1.0,
+      "fpr_hard_negatives": 0.0,
+      "f1_az": 0.980561555075594,
+      "f1_ru": 1.0,
+      "f1_en": 1.0,
+      "latency_ms": 79.87569599081138,
+      "name": "Qalxan + Gemini (full cascade)",
+      "n": {
+        "total": 873,
+        "obfuscated": 184,
+        "novel": 196,
+        "hard_negatives": 192
+      },
+      "llm_calls": 21,
+      "llm_failed": 0
+    }
+  ],
+  "type_accuracy": 0.8668341708542714,
+  "failures": {
+    "missed_scams": [
+      {
+        "text": "Kartınızdan pul çıxarılmasının qаrşısını almаq üçün SMS кodu cavab olarаq yazın. Kapital Bank",
+        "scheme": "bank_otp_theft",
+        "p": 0.233
+      },
+      {
+        "text": "Kartinizdan pul cixarilmasinin qarsisini almaq ucun SMS kodu cavab olaraq yazin. ABB",
+        "scheme": "bank_otp_theft",
+        "p": 0.233
+      },
+      {
+        "text": "Kartinizdan pul cixarilmasinin qarsisini almaq ucun SMS kodu cavab olaraq yazin. PASHA Bank",
+        "scheme": "bank_otp_theft",
+        "p": 0.231
+      },
+      {
+        "text": "Kartınızdan pul çıxarılmasının qarşısını almaq üçün SMS kodu cavab olaraq yazın. PASHA Bank",
+        "scheme": "bank_otp_theft",
+        "p": 0.231
+      },
+      {
+        "text": "Kartinizdan pul cixarilmasinin qarsisini almaq ucun SMS kodu cavab olaraq yazin. Kapital Bank",
+        "scheme": "bank_otp_theft",
+        "p": 0.242
+      },
+      {
+        "text": "Kartınızdan pul çıxarılmasının qarşısını almaq üçün SMS kodu cavab olaraq yazın. Kapital Bank",
+        "scheme": "bank_otp_theft",
+        "p": 0.242
+      },
+      {
+        "text": "Kartınızdan pul çıxarılmasının qarşısını almaq üçün SMS kodu cavab olaraq yazın. Unibank",
+        "scheme": "bank_otp_theft",
+        "p": 0.235
+      },
+      {
+        "text": "Kapital Bank: hesabinizi qorumaq ucun operatora zeng edin +994 10 138 32 19 ve tesdiq kodunu deyin",
+        "scheme": "bank_otp_theft",
+        "p": 0.148
+      },
+      {
+        "text": "ABB: hesabinizi qorumaq ucun operatora zeng edin +90 5114541269 ve tesdiq kodunu deyin",
+        "scheme": "bank_otp_theft",
+        "p": 0.396
+      },
+      {
+        "text": "ABB: hesabınızı qorumaq üçün operatora zəng edin +90 5916881500 və təsdiq kodunu deyin",
+        "scheme": "bank_otp_theft",
+        "p": 0.396
+      },
+      {
+        "text": "Birbank: hesabinizi qorumaq ucun operatora zeng edin +994 10 635 44 86 ve tesdiq kodunu deyin",
+        "scheme": "bank_otp_theft",
+        "p": 0.144
+      },
+      {
+        "text": "Unibank: hesabınızı qorumaq üçün operatora zəng edin +994 70 498 07 47 və təsdiq kodunu deyin",
+        "scheme": "bank_otp_theft",
+        "p": 0.144
+      },
+      {
+        "text": "ABB: подтвердите личность. Пришлите код из смс в ответ на это сообщение",
+        "scheme": "bank_otp_theft",
+        "p": 0.243
+      },
+      {
+        "text": "Leobank: подтвердите личность. Пришлите код из смс в ответ на это сообщение",
+        "scheme": "bank_otp_theft",
+        "p": 0.244
+      },
+      {
+        "text": "Birbank: подтвердите личность. Пришлите код из смс в ответ на это сообщение",
+        "scheme": "bank_otp_theft",
+        "p": 0.25
+      }
+    ],
+    "false_alarms": [],
+    "grey_band": 21
+  }
+}

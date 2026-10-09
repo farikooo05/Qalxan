@@ -1,0 +1,7 @@
+# Вставьте сюда реальные SMS, по одному на строку. Строки с # игнорируются.
+# Мошеннические SMS вставляйте как есть.
+# Обычные, настоящие SMS (коды банков, уведомления об оплате, сообщения от друзей) начинайте с OK|
+#
+# Примеры (удалите или оставьте, это вымышленные строки):
+# Kapital Bank: Kartiniz bloklanib. Berpa ucun kecid edin: kapitalbank-az.online
+# OK|Birbank: Giris kodu 482913. Bu kodu hec kimle paylasmayin.

@@ -2,7 +2,9 @@
 
 *Qalxan* means "shield" in Azerbaijani.
 
-**NeuroBridge.SI Baku 2026 · Track: AI Enterprise Solutions**
+**NeuroBridge.SI Baku 2026 · Track: AI Enterprise Solutions · Team La Furia Roja**
+
+Pitch deck: [Qalxan_pitch.pdf](Qalxan_pitch.pdf)
 
 Scam SMS in Azerbaijan ("your Kapital Bank card is blocked", "pay 1.99 AZN customs fee", "Mom, this is my new
 number") reach thousands of subscribers before an operator reacts. Today's defence is a keyword blocklist,
@@ -76,27 +78,32 @@ Gemini was consulted for 21 of 873 messages (2.4% of traffic); the other 97.6% w
   OTP SMS ("to stop the debit, reply with the SMS code"). They land in the grey zone or carry a risk signal, which is
   exactly where the Gemini layer is consulted.
 - Scheme-type accuracy is 86.7%: parcel vs fine messages share "pay a fee" wording.
-- The data is synthetic (see Disclosure). A real-world check on SMS collected by the team is in
-  `scripts/import_real.py` → `reports/eval_real.md`.
+- Training data is synthetic and Test 1 is reconstructed from official warnings, not taken from live traffic (see
+  Disclosure). A check on real subscriber-forwarded SMS is the first goal of the pilot; the tooling is ready:
+  paste messages into `data/real_sms.txt`, then run `scripts/import_real.py` and `scripts/evaluate.py`.
 
 ## How it works
 
 ```
 SMS ─► normalize ─► rule signals ─► Qalxan model ─┬─ p ≥ 0.8 → SCAM ─► campaign grouping ─► dashboard / block / warn
-       (ə→e,        (brand, links,   (char + word  ├─ p ≤ 0.2 → SAFE
-        homoglyphs,  lookalike       n-grams +     └─ grey zone → Gemini second opinion (optional)
+       (ə→e,        (brand, links,   (char + word  ├─ p ≤ 0.2 and no risk signal → SAFE
+        homoglyphs,  lookalike       n-grams +     └─ grey zone OR risk signal → Gemini second opinion (optional)
         URLs, nums)  domains, asks   rule features,
-                     for code, …)    logistic reg.)        explanation in AZ / RU / EN
+                     for code/card,  logistic reg.)        explanation in AZ / RU / EN
+                     AnyDesk, …)
 ```
 
 1. **Normalization** (`qalxan/normalize.py`) undoes evasion: Azerbaijani letter folding, Cyrillic look-alikes inside
    Latin words, digits used as letters, URLs/phones/numbers replaced with tokens.
 2. **Rule signals** (`qalxan/features.py`): impersonated brand, official vs lookalike vs shortened links, what the
-   message asks for (click, pay, call, send code, send money), urgency, threats, prizes, "new number" pretext.
+   message asks for (click, pay, call, send code, send money, card or ID data), remote-access apps (AnyDesk),
+   urgency, threats, prizes, "new number" pretext.
 3. **Our own model** (`qalxan/model.py`): character n-grams survive letter swaps, word n-grams carry meaning, rule
    signals add domain knowledge. Trained by us on CPU in seconds. Two heads: scam probability and scheme type.
-4. **Gemini layer** (`qalxan/llm.py`), optional: only messages in the grey zone (≈2–3% of traffic) are sent to
-   Gemini for a second opinion. The system works fully without it.
+4. **Gemini layer** (`qalxan/llm.py`), optional: only messages in the grey zone, or that the model calls safe while a
+   risk signal fires (asks for a code, card or ID data, a remote-access app, a lookalike link), go to Gemini for a
+   second opinion: 2.4% of traffic on the synthetic test. Genuine "we never ask for your code" notices are exempt.
+   If Gemini is unavailable (no key, quota, outage), the model's verdict stands.
 5. **Campaign grouping** (`qalxan/campaigns.py`): shared domains or phones, same impersonated brand within
    10 minutes, or near-identical wording → one campaign, with live per-minute rate.
 6. **Explanations** (`qalxan/explain.py`) in Azerbaijani, Russian and English for subscribers and analysts.
@@ -109,31 +116,67 @@ SMS ─► normalize ─► rule signals ─► Qalxan model ─┬─ p ≥ 0.8
 - **Data sources that exist today:** A2P / bulk SMS already inspected by operator SMS firewalls, plus messages
   subscribers forward voluntarily (bot or short number).
 - **Next step:** a 4-week pilot on subscriber-forwarded reports with one operator, then shadow mode on A2P traffic.
+  Pilot success metrics: time from campaign start to block, share of scams caught vs the blocklist, false alarms on
+  genuine bank SMS (target: zero).
+
+## Market and business model
+
+- **Problem size:** consumers lost about $442B to scams in one year across 42 countries (Global Anti-Scam Alliance &
+  Feedzai, Global State of Scams 2025).
+- **Market:** operators already pay for SMS firewalls, a market estimated at $2.7–3.6B for 2024–25 (industry
+  reports). **Beachhead:** Azerbaijan, 12.3M mobile connections across Azercell, Bakcell and Nar (GSMA Intelligence
+  via DataReportal, Digital 2026). Next: Central Asia, Türkiye, GCC.
+- **Who pays:** the operator (annual on-premise license priced by subscriber base); banks, Azerpost and marketplaces
+  (real-time alerts when their brand is impersonated); subscribers via an operator add-on (revenue share). Pricing
+  is set with the first operator during the pilot.
 
 ## Run it
+
+**Windows:** double-click `start_qalxan.bat`. It creates the environment, installs requirements, trains the model
+if needed and opens the dashboard.
+
+**Manually:**
 
 ```bash
 python -m venv .venv
 .venv/Scripts/pip install -r requirements.txt     # Windows (use .venv/bin/pip on macOS/Linux)
 .venv/Scripts/python scripts/train.py             # builds data/ and models/qalxan.joblib
-.venv/Scripts/python scripts/evaluate.py          # writes reports/
+.venv/Scripts/python scripts/evaluate.py          # Test 2 → reports/eval_synthetic.md (add --llm for the Gemini row)
+.venv/Scripts/python scripts/import_real.py documented_cases.txt documented.jsonl
+.venv/Scripts/python scripts/evaluate.py --test data/documented.jsonl --tag documented   # Test 1
 .venv/Scripts/python -m uvicorn qalxan.api:app --port 8000
 ```
 
-Open http://localhost:8000, press **Start network traffic**, then **Launch scam campaign**.
-Optional: copy `.env.example` to `.env` and set `GEMINI_API_KEY` and `TELEGRAM_BOT_TOKEN`.
+Open http://localhost:8000, press **Start network traffic**, then **Launch scam campaign**, then **Block campaign**.
+Use **Check a message** to test any SMS.
+
+Optional: copy `.env.example` to `.env` and set `GEMINI_API_KEY` (Google AI Studio, free tier) and
+`TELEGRAM_BOT_TOKEN` (from @BotFather). The Telegram bot runs inside the same server; every message it receives
+also appears on the dashboard as a subscriber report.
+
+## Project structure
+
+```
+qalxan/      core: normalize, features, model, llm (Gemini), pipeline, campaigns, explain, api, bot, synth
+scripts/     train.py, evaluate.py, import_real.py
+web/         dashboard (single page)
+data/        synthetic train/test sets, documented-scheme test set, real-SMS template
+reports/     evaluation reports and charts
+docs/        design notes, video script
+```
 
 ## Disclosure (models, data, components)
 
 - **Our model:** scikit-learn TF-IDF (character 2–5-grams, word 1–2-grams) + logistic regression, trained by the team
   during the hackathon on the data below.
-- **LLM:** Google Gemini (`gemini-flash-latest`) via the `google-genai` SDK, used only for grey-zone messages and
-  only when an API key is configured. Prompt in `qalxan/llm.py`.
+- **LLM:** Google Gemini (`gemini-flash-lite-latest`, falling back to `gemini-flash-latest`) via the `google-genai`
+  SDK, used only for grey-zone or risk-signal messages and only when an API key is configured. Prompt in
+  `qalxan/llm.py`.
 - **AI coding assistant:** Claude (Anthropic) via Claude Code helped write the code and the synthetic SMS templates.
 - **Data:** 2,714 synthetic SMS generated from hand-written templates (`qalxan/synth_templates.py`) modelled on
   publicly reported scam schemes in Azerbaijan, filled with random brands, amounts, lookalike domains and phones,
-  with programmatic obfuscation. No real subscriber data. Real SMS collected by the team from their own phones are
-  used only as an extra test set (`data/real_sms.txt`).
+  with programmatic obfuscation. Test 1: 70 SMS reconstructed from official public warnings
+  (`data/documented_cases.txt`). Market figures come from the public reports cited above. No real subscriber data.
 - **Libraries:** FastAPI, Uvicorn, scikit-learn, NumPy, SciPy, joblib, aiogram (Telegram), google-genai,
   matplotlib, python-dotenv. Fonts: Inter, JetBrains Mono (Google Fonts).
 - Nothing was built before the hackathon started.

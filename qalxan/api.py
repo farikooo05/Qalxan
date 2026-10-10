@@ -17,6 +17,7 @@ from pydantic import BaseModel
 
 from . import llm
 from .campaigns import CampaignTracker
+from .features import extract
 from .pipeline import Analyzer
 from .synth import SCAM, campaign_messages, legit_stream
 
@@ -32,6 +33,8 @@ stats = {"processed": 0, "flagged": 0, "scams_true": 0, "qalxan_caught": 0, "key
 sim = {"running": False, "rate": 2.0, "pending": deque(), "rng": random.Random(42)}
 sim["legit"] = legit_stream(sim["rng"])
 _ids = iter(range(1, 10**9))
+# One demo subscriber's phone (web/phone.html): what actually reaches them.
+phone = {"inbox": deque(maxlen=40), "blocked": 0, "campaigns": set(), "rng": random.Random(7)}
 
 
 class AnalyzeIn(BaseModel):
@@ -57,8 +60,12 @@ def sender_for(row, rng):
     if row["label"] == 1:
         return rng.choice([f"+994{rng.choice(['50', '55', '70', '77', '10'])}{rng.randint(1000000, 9999999)}",
                            "INFO", "Bank-AZ", "Bonus", f"+44{rng.randint(10**9, 10**10 - 1)}"])
-    return rng.choice(["KapitalBank", "Birbank", "ABB", "Azercell", "Bakcell", "ASAN", "Wolt", "Bolt",
-                       f"+99450{rng.randint(1000000, 9999999)}"])
+    # genuine messages come from the sender they name ("Kapital Bank: ...", "Wolt: ...")
+    head = row["text"].split(":")[0].strip()
+    if ":" in row["text"] and 2 <= len(head) <= 22 and "*" not in head and not any(c.isdigit() for c in head):
+        return head
+    brand = extract(row["text"])["brand"]
+    return brand or f"+99450{rng.randint(1000000, 9999999)}"
 
 
 async def process(text: str, sender: str, truth: int | None, source: str, use_llm: bool):
@@ -82,7 +89,33 @@ async def process(text: str, sender: str, truth: int | None, source: str, use_ll
     if camp:
         broadcast("campaign", tracker.public(camp))
     broadcast("stats", stats)
+    phone_deliver(msg)
     return msg
+
+
+def phone_push(item):
+    phone["inbox"].appendleft(item)
+    broadcast("phone", item)
+
+
+def phone_deliver(msg):
+    """Decide what the demo subscriber's phone receives for a network message."""
+    if msg["origin"] != "network":
+        return
+    r, cid = phone["rng"], msg["campaign_id"]
+    if msg["truth"] == 1 and cid:
+        if msg["blocked"]:
+            if r.random() < 0.5:  # this subscriber was one of the campaign's targets
+                phone["blocked"] += 1
+                broadcast("phone", {"kind": "blocked", "count": phone["blocked"], "campaign_id": cid})
+            return
+        if cid not in phone["campaigns"] or r.random() < 0.3:
+            phone["campaigns"].add(cid)
+            phone_push({"kind": "sms", "id": msg["id"], "ts": msg["ts"], "sender": msg["sender"],
+                        "text": msg["text"], "campaign_id": cid, "scam": True})
+    elif msg["truth"] == 0 and r.random() < 0.15:
+        phone_push({"kind": "sms", "id": msg["id"], "ts": msg["ts"], "sender": msg["sender"],
+                    "text": msg["text"], "campaign_id": None, "scam": False})
 
 
 async def simulator_loop():
@@ -173,6 +206,9 @@ async def sim_reset():
     sim["pending"].clear()
     tracker.campaigns.clear()
     tracker._ids = itertools.count(1)
+    phone["inbox"].clear()
+    phone["campaigns"].clear()
+    phone["blocked"] = 0
     recent.clear()
     for k in stats:
         stats[k] = 0
@@ -198,6 +234,14 @@ async def warn(cid: int):
     new = c["count"] - c["warned"]
     c["warned"] = c["count"]
     stats["warned"] += new
+    if cid in phone["campaigns"]:
+        brand = c["brand"] or "a bank"
+        host = sorted(c["hosts"])[0] if c["hosts"] else "the link"
+        phone_push({"kind": "warning", "id": next(_ids), "ts": time.time(), "sender": "Azercell · Qalxan",
+                    "campaign_id": cid,
+                    "text": f"⚠ Diqqət! {brand} adından gələn SMS fırıldaqdır. {host} linkinə keçməyin.\n"
+                            f"Warning: the SMS from \"{brand}\" is a scam. Do not open {host} and never share "
+                            f"card data or codes."})
     broadcast("campaign", tracker.public(c))
     broadcast("stats", stats)
     return {"warned_now": new, **tracker.public(c)}
@@ -208,9 +252,19 @@ async def health():
     return {"ok": True, "llm": llm.available()}
 
 
+@app.get("/api/phone")
+async def phone_state():
+    return {"inbox": list(phone["inbox"]), "blocked": phone["blocked"]}
+
+
 @app.get("/")
 async def index():
     return FileResponse(WEB / "index.html")
+
+
+@app.get("/phone")
+async def phone_page():
+    return FileResponse(WEB / "phone.html")
 
 
 app.mount("/static", StaticFiles(directory=WEB), name="static")

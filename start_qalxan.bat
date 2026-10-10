@@ -8,5 +8,5 @@ if not exist ".venv\Scripts\python.exe" (
 )
 if not exist "models\qalxan.joblib" .venv\Scripts\python.exe scripts\train.py
 start "" http://localhost:8000
-.venv\Scripts\python.exe -m uvicorn qalxan.api:app --port 8000
+.venv\Scripts\python.exe -m uvicorn qalxan.api:app --host 0.0.0.0 --port 8000
 pause

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Messages · Qalxan demo phone</title>
+<style>
+  :root { --bg: #ffffff; --ink: #111827; --muted: #6b7280; --line: #eef0f3; --bubble: #f2f3f5;
+          --red: #e4002b; --redBg: #fdecef; --green: #00a862; --greenBg: #e7f6ef; --amber: #b45309; --amberBg: #fff4dc; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+               font: 15px/1.4 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+  .status { display: flex; justify-content: space-between; padding: 8px 16px 4px; font-size: 13px; font-weight: 600; }
+  header { padding: 6px 16px 10px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 2; }
+  header h1 { margin: 0; font-size: 26px; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .shield { display: none; margin: 10px 16px 0; padding: 10px 12px; border-radius: 12px; background: var(--greenBg);
+            color: #065f46; font-weight: 600; font-size: 14px; align-items: center; gap: 8px; }
+  .shield.on { display: flex; }
+  .shield.bump { animation: bump .6s ease; }
+  @keyframes bump { 30% { transform: scale(1.04); } }
+  #list { padding: 8px 12px 40px; }
+  .msg { padding: 10px 12px; margin: 8px 0; border-radius: 14px; background: var(--bubble); animation: slide .35s ease; }
+  @keyframes slide { from { transform: translateY(-10px); opacity: .2; } }
+  .msg.still { animation: none; }
+  .msg .top { display: flex; justify-content: space-between; font-size: 13px; }
+  .msg .from { font-weight: 700; }
+  .msg .t { color: var(--muted); }
+  .msg .body { margin-top: 3px; white-space: pre-line; word-break: break-word; }
+  .msg.flagged { background: var(--redBg); }
+  .tag { display: none; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--red); }
+  .msg.flagged .tag { display: block; }
+  .msg.warning { background: var(--amberBg); border: 1px solid #f6d48b; }
+  .msg.warning .from { color: var(--amber); }
+  .empty { color: var(--muted); text-align: center; margin-top: 40px; font-size: 14px; }
+</style>
+</head>
+<body>
+  <div class="status"><span id="clock">14:00</span><span>Azercell 4G ▮▮▮ 🔋</span></div>
+  <header>
+    <h1>Messages</h1>
+    <p>Demo subscriber · operator runs Qalxan</p>
+  </header>
+  <div class="shield" id="shield">🛡 <span id="shieldText"></span></div>
+  <div id="list"><div class="empty">No messages yet</div></div>
+
+<script>
+const list = document.getElementById("list");
+const flaggedCampaigns = new Set();
+const esc = s => (s ?? "").toString().replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hhmm = ts => new Date(ts * 1000).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+setInterval(() => document.getElementById("clock").textContent = hhmm(Date.now() / 1000), 1000);
+
+function card(m) {
+  const cls = m.kind === "warning" ? "warning" : (m.campaign_id && flaggedCampaigns.has(m.campaign_id) ? "flagged" : "");
+  return `<div class="msg ${cls}" data-c="${m.campaign_id ?? ""}">
+    <div class="top"><span class="from">${esc(m.sender)}</span><span class="t">${hhmm(m.ts)}</span></div>
+    <div class="body">${esc(m.text)}</div>
+    <div class="tag">⚠ Scam: reported by your operator. Do not open the link.</div></div>`;
+}
+function add(m) {
+  const empty = list.querySelector(".empty"); if (empty) empty.remove();
+  list.insertAdjacentHTML("afterbegin", card(m));
+  if (navigator.vibrate) navigator.vibrate(m.kind === "warning" ? [120, 80, 120] : 120);
+}
+function setBlocked(n, bump) {
+  const el = document.getElementById("shield");
+  if (!n) { el.classList.remove("on"); return; }
+  document.getElementById("shieldText").textContent =
+    `${n} scam SMS blocked by your operator before reaching you`;
+  el.classList.add("on");
+  if (bump) { el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+}
+function flag(cid) {
+  flaggedCampaigns.add(cid);
+  list.querySelectorAll(`.msg[data-c="${cid}"]`).forEach(e => { if (!e.classList.contains("warning")) e.classList.add("flagged"); });
+}
+
+// Polling instead of a live stream: works on venue Wi-Fi that buffers streaming responses.
+let lastKey = null, seen = new Set(), lastBlocked = 0;
+async function poll() {
+  try {
+    const s = await fetch("/api/phone", {cache: "no-store"}).then(r => r.json());
+    const key = s.inbox.map(m => m.id).join(",") + "|" + s.blocked;
+    if (key !== lastKey) {
+      const first = lastKey === null;
+      flaggedCampaigns.clear();
+      s.inbox.filter(m => m.kind === "warning").forEach(m => flaggedCampaigns.add(m.campaign_id));
+      const fresh = s.inbox.filter(m => !seen.has(m.id));
+      list.innerHTML = s.inbox.length
+        ? s.inbox.map(m => card(m).replace('class="msg', seen.has(m.id) || first ? 'class="msg still' : 'class="msg')).join("")
+        : '<div class="empty">No messages yet</div>';
+      if (!first && fresh.length && navigator.vibrate)
+        navigator.vibrate(fresh.some(m => m.kind === "warning") ? [120, 80, 120] : 120);
+      setBlocked(s.blocked, !first && s.blocked > lastBlocked);
+      seen = new Set(s.inbox.map(m => m.id));
+      lastBlocked = s.blocked;
+      lastKey = key;
+    }
+  } catch (e) { /* network hiccup: try again */ }
+  setTimeout(poll, 800);
+}
+poll();
+</script>
+</body>
+</html>
